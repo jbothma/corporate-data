@@ -1,14 +1,7 @@
 #!/usr/bin/python
 
 import re
-startend = r'.+Places of worship within a radius of 1 kilometre from the premises in paragraph 4.'
-footereng = "\n.\d+\n\nNo. \d+\n\nPROVINCIAL GAZETTE EXTRAORDINARY, \w+ \w+ \w+\n\n"
-footerafr = "\n\n.BUITENGEWONE PROVINSIALE KOERANT, \w+ \w+ \w+\n\nNo. \d+\n\n\d+\n\n"
-tail = "Printed by the Government Printer, Bosman Street.+"
-split = "([A-Z ʼ]+\n)?[A-Z/ 0-9.-]+$\n^(\(1\))\s*"
-
-#with open ("../pdftotext/105_24-4-2013_GautengLiquor.txt", "r") as myfile:
-
+import json
 
 def parse(item):
     notice = {}
@@ -31,9 +24,19 @@ def parse(item):
             notice['nearby_liquor'] = parts.pop()
         elif part == "(8)":
             notice['nearby_religious'] = parts.pop()
-    print(notice)
+    return notice
 
-with open ("../testy.txt", "r") as myfile:
+startend = r'.+Places of worship within a radius of 1 kilometre from the premises in paragraph 4.'
+footereng = "\n.\d+\n\nNo. \d+\n\nPROVINCIAL GAZETTE EXTRAORDINARY, \w+ \w+ \w+\n\n"
+footerafr = "\n\n.BUITENGEWONE PROVINSIALE KOERANT, \w+ \w+ \w+\n\nNo. \d+\n\n\d+\n\n"
+tail = "Printed by the Government Printer, Bosman Street.+"
+split = "([A-Z ʼ]+\n)?[A-Z/ 0-9.-]+$\n^(\(1\))\s*"
+
+#with open ("../testy.txt", "r") as myfile:
+
+notices = []
+
+with open ("../pdftotext/105_24-4-2013_GautengLiquor.txt", "r") as myfile:
     data=myfile.read()
     # Clean
     data2 = re.sub(startend, '', data, flags=re.DOTALL)
@@ -47,4 +50,6 @@ with open ("../testy.txt", "r") as myfile:
         item = data6.pop()
         if item == "(1)":
             item2 = data6.pop()
-            parse(item2)
+            notices.append(parse(item2))
+
+print(json.dumps(notices))
